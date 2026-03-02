@@ -1,17 +1,30 @@
 package com.github.xujia118.itemservice.controller;
 
-import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.github.xujia118.itemservice.entity.Item;
+import com.github.xujia118.itemservice.service.ItemService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/items")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemController {
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello from Item Service!";
+    private final ItemService itemService;
+
+    @GetMapping()
+    public List<Item> getAllItems() {
+        return itemService.findAllItems();
+    }
+    @GetMapping("/{id}")
+    public Item getItem(@PathVariable String id) {
+        return itemService.getItemById(id);
+    }
+
+    @PutMapping("/{id}/inventory")
+    public void deductInventory(@PathVariable String id, @RequestParam int quantity) {
+        itemService.deductStock(id, quantity);
     }
 }

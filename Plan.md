@@ -34,3 +34,16 @@ Payment Service (Port 8085 - MySQL/Postgres)
 - POST /api/v1/payments – Receives orderId and payment details.
 - GET /api/v1/payments/{id} – Lookup transaction status.
 - POST /api/v1/payments/{id}/refund – Replaces /cancel to match real-world banking terminology.
+
+
+Spin up all db instances, play around with MongoDB and Cassandra
+
+Develop:
+Account Service
+Item Service
+Order Service
+Payment Service
+Auth Service
+Don't forget CORS
+
+Think about how services can communicate with each other
