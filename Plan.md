@@ -39,11 +39,17 @@ Payment Service (Port 8085 - MySQL/Postgres)
 Spin up all db instances, play around with MongoDB and Cassandra
 
 Develop:
-Account Service
 Item Service
+Account Service
 Order Service
 Payment Service
 Auth Service
 Don't forget CORS
+
+An Account has orders, payment and profile, and is linked to auth service.
+When you fetch all orders of an account, you query order service: give me all orders of that account id
+
+
+for auth, don't forget that user can't get other account by id
 
 Think about how services can communicate with each other
