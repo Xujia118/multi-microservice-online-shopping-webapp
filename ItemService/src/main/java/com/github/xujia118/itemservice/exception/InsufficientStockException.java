@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.CONFLICT)
 public class InsufficientStockException extends RuntimeException {
     public InsufficientStockException(String itemName) {
-        super("Insufficient stock for item: " + itemName);
+        super("Insufficient stock for item " + itemName);
     }
 }

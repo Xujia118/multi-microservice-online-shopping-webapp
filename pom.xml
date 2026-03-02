@@ -21,6 +21,7 @@
         <module>OrderService</module>
         <module>ItemService</module>
         <module>PaymentService</module>
+        <module>Common</module>
     </modules>
 
     <url/>
