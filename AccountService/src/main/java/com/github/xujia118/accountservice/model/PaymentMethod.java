@@ -15,7 +15,6 @@ public class PaymentMethod {
     @Enumerated(EnumType.STRING)
     private PaymentType type; // e.g., CREDIT_CARD, PAYPAL
 
-
     private String cardNumber; // Encrypted or masked
     private String expirationDate;
     private String cardHolderName;
