@@ -37,9 +37,9 @@ public class PaymentService {
 
         // 4. Update and Publish
         if (success) {
-            handleSuccess(payment);
+            handleSuccess(orderDto, payment);
         } else {
-            handleFailure(payment);
+            handleFailure(orderDto, payment);
         }
     }
 
@@ -53,21 +53,21 @@ public class PaymentService {
         return payment;
     }
 
-    private void handleSuccess(Payment payment) {
+    private void handleSuccess(OrderDto orderDto, Payment payment) {
         payment.setOrderStatus(OrderStatus.PAID);
         paymentRepository.save(payment);
         log.info("Payment SUCCESS saved for Order: {}", payment.getOrderId());
 
         // Notify downstream services via Kafka
-        paymentPublisher.publishPaymentSuccess(payment);
+        paymentPublisher.publishPaymentSuccess(orderDto, payment);
     }
 
-    private void handleFailure(Payment payment) {
+    private void handleFailure(OrderDto orderDto, Payment payment) {
         payment.setOrderStatus(OrderStatus.FAILED);
         paymentRepository.save(payment);
         log.error("Payment FAILED saved for Order: {}", payment.getOrderId());
 
         // Notify downstream services via Kafka
-        paymentPublisher.publishPaymentFailure(payment);
+        paymentPublisher.publishPaymentFailure(orderDto, payment);
     }
 }
