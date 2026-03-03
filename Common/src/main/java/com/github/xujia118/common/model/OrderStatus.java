@@ -7,5 +7,6 @@ public enum OrderStatus {
     DELIVERED,  // Customer received it
     CANCELLED,  // User cancelled before payment/shipping
     REFUNDED,    // Payment reversed (matches your Payment Service requirement)
-    DELETED     // Order deleted by user, but kept by platform for tax & audit purpose
+    DELETED,     // Order deleted by user, but kept by platform for tax & audit purpose
+    FAILED
 }

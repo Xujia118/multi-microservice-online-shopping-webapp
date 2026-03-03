@@ -14,19 +14,12 @@ public class PaymentListener {
 
     private final PaymentService paymentService;
 
-    // The containerFactory name must match the @Bean name in your KafkaConfig
     @KafkaListener(topics = "order-topic", groupId = "payment-group")
     public void onOrderReceived(Order order) {
         log.info("Payment Service received Order ID: {}", order.getKey());
         log.info("Amount to charge: ${}", order.getTotalAmount());
         log.info("Using Payment Method: {}", order.getPaymentMethodId());
 
-        boolean result = paymentService.process(order);
-
-        if (result) {
-            // TODO: Future step - Publish a 'payment-success' event back to Kafka
-        } else {
-            // TODO: Future step - Publish a 'payment-failed' event to trigger a refund or cancellation
-        }
+        paymentService.processOrder(order);
     }
 }

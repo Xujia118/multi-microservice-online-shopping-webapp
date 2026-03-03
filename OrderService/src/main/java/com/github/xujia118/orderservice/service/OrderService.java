@@ -52,7 +52,7 @@ public class OrderService {
         // 5. Publish to Kafka
         // We use the accountId as the Kafka partition key to keep user orders in order
         try {
-            String kafkaKey = savedOrder.getKey().getAccountId().toString();
+            String kafkaKey = savedOrder.getKey().getOrderId().toString();
             kafkaTemplate.send("order-topic", kafkaKey, savedOrder);
         } catch (Exception e) {
             // In a real system, you'd handle Kafka failures (e.g., Transactional Outbox)
