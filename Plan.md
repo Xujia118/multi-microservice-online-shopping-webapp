@@ -49,6 +49,13 @@ Don't forget CORS
 An Account has orders, payment and profile, and is linked to auth service.
 When you fetch all orders of an account, you query order service: give me all orders of that account id
 
+Payment flow:
+1. Make sure we have enough stock
+2. If payment is successful, order status is set to PAID
+3. Then the order should go to kafka again, we deduce the stock, and ready for shipping
+4. If payment fails, the order status is still PENDING. We should prompt the user to try paying again.
+5. After payment, if the user wants to cancel order and ask for a refund, he can do that as long as order status is not shipped.
+6. we should return the money, and restore the stock
 
 for auth, don't forget that user can't get other account by id
 

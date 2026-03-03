@@ -10,6 +10,16 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: shopping_db
 
+  payment-db:
+    image: postgres:latest
+    container_name: payment-postgres
+    ports:
+      - "5433:5432" # Changed host port to 5433 to avoid conflict
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payment_db
+
   # NoSQL for Item Service metadata
   mongodb:
     image: mongo:latest

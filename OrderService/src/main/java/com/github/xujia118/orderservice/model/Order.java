@@ -7,6 +7,7 @@ import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Table("orders")
@@ -20,7 +21,7 @@ public class Order {
     private List<OrderItem> items;
 
     @Column("total_amount")
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Column("order_status")
     private OrderStatus status;
@@ -33,12 +34,17 @@ public class Order {
 
     public void calculateTotal() {
         if (this.items == null || this.items.isEmpty()) {
-            this.totalAmount = 0.0;
+            this.totalAmount = BigDecimal.ZERO;
             return;
         }
 
         this.totalAmount = this.items.stream()
-                .mapToDouble(item -> item.getPriceAtPurchase() * item.getQuantity())
-                .sum();
+                .map(item -> {
+                    // Ensure item.getPriceAtPurchase() also returns BigDecimal
+                    BigDecimal price = BigDecimal.valueOf(item.getPriceAtPurchase());
+                    BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+                    return price.multiply(quantity);
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
