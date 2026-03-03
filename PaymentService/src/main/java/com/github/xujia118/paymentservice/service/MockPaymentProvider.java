@@ -14,8 +14,8 @@ public class MockPaymentProvider implements PaymentProvider {
     private final Random random = new Random();
 
     @Override
-    public boolean executeTransaction(Payment payment, String PaymentMethodId) {
-        log.info("Mocking third-party call for Order: {}", payment.getOrderKey().getOrderId());
+    public boolean executeTransaction(Payment payment, Long PaymentMethodId) {
+        log.info("Mocking third-party call for Order: {}", payment.getOrderId());
 
         // Simulate external API latency
         try {

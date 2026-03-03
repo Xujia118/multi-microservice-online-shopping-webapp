@@ -1,7 +1,6 @@
 package com.github.xujia118.paymentservice.controller;
 
-import com.github.xujia118.paymentservice.model.Order;
-import com.github.xujia118.paymentservice.model.Payment;
+import com.github.xujia118.common.dto.OrderDto;
 import com.github.xujia118.paymentservice.service.PaymentService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,7 @@ public class PaymentController {
     }
 
     @PostMapping()
-    public void processOrder(Order order) {
-        paymentService.processOrder(order);
+    public void processOrder(OrderDto orderDto) {
+        paymentService.processOrder(orderDto);
     }
 }

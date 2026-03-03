@@ -1,6 +1,5 @@
 package com.github.xujia118.paymentservice.repository;
 
-import com.github.xujia118.paymentservice.model.OrderKey;
 import com.github.xujia118.paymentservice.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,13 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    // 1. Find by the entire composite key object
-    Optional<Payment> findByOrderKey(OrderKey orderKey);
-
-    // 2. Find specifically by the orderId inside the orderKey
+    // 1. Find specifically by the orderId inside the orderKey
     // This matches the "orderKey" field name + the "orderId" field inside OrderKey
-    Optional<Payment> findByOrderKeyOrderId(String orderId);
+    Optional<Payment> findByOrderId(String orderId);
 
     // 3. Find by accountId inside the orderKey
-    List<Payment> findByOrderKeyAccountId(String accountId);
+    List<Payment> findByAccountId(String accountId);
 }

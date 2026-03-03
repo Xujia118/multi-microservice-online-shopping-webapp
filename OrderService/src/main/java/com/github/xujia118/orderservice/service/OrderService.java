@@ -3,6 +3,7 @@ package com.github.xujia118.orderservice.service;
 import com.github.xujia118.common.model.OrderStatus;
 import com.github.xujia118.orderservice.model.Order;
 import com.github.xujia118.orderservice.model.OrderKey;
+import com.github.xujia118.orderservice.producer.OrderPublisher;
 import com.github.xujia118.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ public class OrderService {
 
     private final KafkaTemplate<String, Order> kafkaTemplate;
     private final OrderRepository orderRepository;
+    private final OrderPublisher orderPublisher;
 
     public List<Order> getOrdersByAccount(Long accountId) {
         return orderRepository.findByKeyAccountId(accountId);
@@ -50,14 +52,7 @@ public class OrderService {
         log.info("Order saved to Cassandra: {}", savedOrder.getKey().getOrderId());
 
         // 5. Publish to Kafka
-        // We use the accountId as the Kafka partition key to keep user orders in order
-        try {
-            String kafkaKey = savedOrder.getKey().getOrderId().toString();
-            kafkaTemplate.send("order-topic", kafkaKey, savedOrder);
-        } catch (Exception e) {
-            // In a real system, you'd handle Kafka failures (e.g., Transactional Outbox)
-            log.error("Failed to publish order to Kafka", e);
-        }
+        orderPublisher.publishOrder(savedOrder);
 
         // consider race conditions
         return savedOrder;
@@ -73,13 +68,10 @@ public class OrderService {
         order.setItems(updatedOrder.getItems());
         order.setPaymentType(updatedOrder.getPaymentType());
         order.setPaymentMethodId(updatedOrder.getPaymentMethodId());
-
         order.calculateTotal();
 
         Order savedOrder = orderRepository.save(order);
-
-        kafkaTemplate.send("order-topic", orderKey.getAccountId().toString(), savedOrder);
-        log.info("Order {} updated. New total: {}", orderKey.getOrderId(), savedOrder.getTotalAmount());
+        orderPublisher.publishOrder(savedOrder);
 
         return savedOrder;
     }
@@ -93,17 +85,13 @@ public class OrderService {
 
         // Logical check: Don't cancel if already shipped or delivered
         if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Cannot cancel order once it's shipped or delivered.");
+            throw new IllegalStateException("Cannot cancel order once it's shipped.");
         }
 
         order.setStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
-        // Kafka event triggers downstream Refund & Inventory Restock
-        kafkaTemplate.send("order-topic", orderKey.getAccountId().toString(), order);
-
-        log.info("Order {} cancelled", orderKey.getOrderId());
-
+        orderPublisher.publishOrder(savedOrder);
         return order;
     }
 }

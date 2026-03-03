@@ -1,6 +1,6 @@
 package com.github.xujia118.paymentservice.consumer;
 
-import com.github.xujia118.paymentservice.model.Order;
+import com.github.xujia118.common.dto.OrderDto;
 import com.github.xujia118.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +14,12 @@ public class PaymentListener {
 
     private final PaymentService paymentService;
 
-    @KafkaListener(topics = "order-topic", groupId = "payment-group")
-    public void onOrderReceived(Order order) {
-        log.info("Payment Service received Order ID: {}", order.getKey());
-        log.info("Amount to charge: ${}", order.getTotalAmount());
-        log.info("Using Payment Method: {}", order.getPaymentMethodId());
+    @KafkaListener(topics = "${kafka.topics.order}", groupId = "${kafka.groups.payment}")
+    public void onOrderReceived(OrderDto orderDto) {
+        log.info("Payment Service received Order ID: {}", orderDto.getOrderId());
+        log.info("Amount to charge: ${}", orderDto.getTotalAmount());
+        log.info("Using Payment Method: {}", orderDto.getPaymentMethodId());
 
-        paymentService.processOrder(order);
+        paymentService.processOrder(orderDto);
     }
 }

@@ -1,6 +1,7 @@
 package com.github.xujia118.paymentservice.producer;
 
-import com.github.xujia118.paymentservice.dto.PaymentDto;
+import com.github.xujia118.common.constant.KafkaTopics;
+import com.github.xujia118.common.dto.PaymentDto;
 import com.github.xujia118.paymentservice.model.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,25 +17,25 @@ public class PaymentPublisher {
 
     public void publishPaymentSuccess(Payment payment) {
         PaymentDto paymentDto = new PaymentDto(
-                payment.getOrderKey().getOrderId(),
-                payment.getOrderKey().getAccountId(),
+                payment.getOrderId(),
+                payment.getAccountId(),
                 payment.getTransactionId(),
                 payment.getOrderStatus().toString()
         );
 
         log.info("Publishing payment success for order: {}", paymentDto.getOrderId());
-        kafkaTemplate.send("payment-success-topic", paymentDto.getOrderId(), paymentDto);
+        kafkaTemplate.send(KafkaTopics.PAYMENT_SUCCESS_TOPIC.getTopicName(), paymentDto.getOrderId(), paymentDto);
     }
 
     public void publishPaymentFailure(Payment payment) {
         PaymentDto paymentDto = new PaymentDto(
-                payment.getOrderKey().getOrderId(),
-                payment.getOrderKey().getAccountId(),
+                payment.getOrderId(),
+                payment.getAccountId(),
                 payment.getTransactionId(),
                 payment.getOrderStatus().toString()
         );
 
         log.info("Publishing payment failed for order: {}", paymentDto.getOrderId());
-        kafkaTemplate.send("payment-failure-topic", paymentDto.getOrderId(), paymentDto);
+        kafkaTemplate.send(KafkaTopics.PAYMENT_FAILURE_TOPIC.getTopicName(), paymentDto.getOrderId(), paymentDto);
     }
 }

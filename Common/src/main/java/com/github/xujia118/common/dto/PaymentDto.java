@@ -1,4 +1,4 @@
-package com.github.xujia118.paymentservice.dto;
+package com.github.xujia118.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

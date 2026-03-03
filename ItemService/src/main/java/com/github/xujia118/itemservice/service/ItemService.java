@@ -24,7 +24,9 @@ public class ItemService {
 
     }
 
-    public void deductStock(String id, int quantity) {
+    public void deductStock(String orderId) {
+
+
         Item item = getItemById(id);
 
         if (item.getStock() < quantity) {

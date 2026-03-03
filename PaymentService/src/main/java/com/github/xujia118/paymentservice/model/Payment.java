@@ -20,8 +20,11 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
-    private OrderKey orderKey;
+    @Column(nullable = false)
+    private String orderId;
+
+    @Column(nullable = false)
+    private String accountId;
 
     private BigDecimal amount;
 
