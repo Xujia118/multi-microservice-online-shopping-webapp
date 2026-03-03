@@ -1,6 +1,5 @@
 package com.github.xujia118.orderservice.controller;
 
-import com.github.xujia118.common.model.OrderStatus;
 import com.github.xujia118.orderservice.model.Order;
 import com.github.xujia118.orderservice.model.OrderKey;
 import com.github.xujia118.orderservice.service.OrderService;
