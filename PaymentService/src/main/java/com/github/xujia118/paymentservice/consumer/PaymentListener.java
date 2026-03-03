@@ -15,11 +15,7 @@ public class PaymentListener {
     private final PaymentService paymentService;
 
     // The containerFactory name must match the @Bean name in your KafkaConfig
-    @KafkaListener(
-            topics = "order-topic",
-            groupId = "payment-group",
-            containerFactory = "kafkaListenerContainerFactory"
-    )
+    @KafkaListener(topics = "order-topic", groupId = "payment-group")
     public void onOrderReceived(Order order) {
         log.info("Payment Service received Order ID: {}", order.getKey());
         log.info("Amount to charge: ${}", order.getTotalAmount());
