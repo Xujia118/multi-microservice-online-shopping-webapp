@@ -48,7 +48,7 @@ public class PaymentService {
         Payment payment = new Payment();
         payment.setOrderId(orderDto.getOrderId());
         payment.setAccountId(orderDto.getAccountId());
-        payment.setAmount(orderDto.getTotalAmount());
+        payment.setTotalAmount(orderDto.getTotalAmount());
         payment.setPaymentType(orderDto.getPaymentType());
         payment.setOrderStatus(OrderStatus.PENDING);
         return payment;

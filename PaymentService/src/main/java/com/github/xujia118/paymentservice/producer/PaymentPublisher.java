@@ -29,7 +29,7 @@ public class PaymentPublisher {
         PaymentDto paymentDto = mapToDto(orderDto, payment);
 
         log.info("Publishing payment status [{}] to topic [{}] for order: {}",
-                paymentDto.getStatus(), topic.getTopicName(), paymentDto.getOrderId());
+                paymentDto.getOrderStatus(), topic.getTopicName(), paymentDto.getOrderId());
 
         kafkaTemplate.send(topic.getTopicName(), paymentDto.getOrderId(), paymentDto);
     }
@@ -40,7 +40,8 @@ public class PaymentPublisher {
                 payment.getOrderId(),
                 payment.getAccountId(),
                 payment.getTransactionId(),
-                payment.getOrderStatus().toString(),
+                payment.getTotalAmount(),
+                payment.getOrderStatus(),
                 orderDto.getItems()
         );
     }

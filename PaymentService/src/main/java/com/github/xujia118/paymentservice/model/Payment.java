@@ -26,7 +26,7 @@ public class Payment {
     @Column(nullable = false)
     private String accountId;
 
-    private BigDecimal amount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;

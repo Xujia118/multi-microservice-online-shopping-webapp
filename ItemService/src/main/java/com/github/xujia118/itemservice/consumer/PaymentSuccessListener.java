@@ -20,7 +20,7 @@ public class PaymentSuccessListener {
         log.info("Received payment success for Order ID: {}", paymentDto.getOrderId());
 
         // Ensure we only process if the status is PAID
-        if (OrderStatus.PAID.toString().equals(paymentDto.getStatus())) {
+        if (OrderStatus.PAID.equals(paymentDto.getOrderStatus())) {
             itemService.deductStock(paymentDto);
         }
     }
