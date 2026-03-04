@@ -5,6 +5,7 @@ import com.github.xujia118.common.model.OrderStatus;
 import com.github.xujia118.paymentservice.model.Payment;
 import com.github.xujia118.paymentservice.producer.PaymentPublisher;
 import com.github.xujia118.paymentservice.repository.PaymentRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -69,5 +70,26 @@ public class PaymentService {
 
         // Notify downstream services via Kafka
         paymentPublisher.publishPaymentFailure(orderDto, payment);
+    }
+
+    @Transactional
+    public void processRefund(String orderId, String transactionId) {
+        // 1. Fetch the payment record
+        Payment payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found for order: " + orderId));
+
+        // 2. The Idempotency Guard
+        if (OrderStatus.REFUNDED.equals(payment.getOrderStatus())) {
+            log.info("Payment for order {} already refunded. Skipping.", orderId);
+            return;
+        }
+
+        // 3. Trigger external refund
+        // Note: Call this before the DB update. If the API fails, the DB doesn't change.
+        paymentProvider.refund(transactionId);
+
+        // 4. Update the record
+        payment.setOrderStatus(OrderStatus.REFUNDED);
+        paymentRepository.save(payment);
     }
 }

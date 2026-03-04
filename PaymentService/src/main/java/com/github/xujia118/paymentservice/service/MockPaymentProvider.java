@@ -37,4 +37,17 @@ public class MockPaymentProvider implements PaymentProvider {
 
         return isSuccess;
     }
+
+    @Override
+    public void refund(String transactionId) {
+        log.info("Mocking refund for Transaction: {}", transactionId);
+
+        // Simulate 5% failure rate
+        if (random.nextDouble() < 0.05) {
+            log.error("Bank API connection timed out!");
+            throw new RuntimeException("Refund failed due to external connectivity issues");
+        }
+
+        log.info("Mock Provider: Refund successful for ID: {}", transactionId);
+    }
 }

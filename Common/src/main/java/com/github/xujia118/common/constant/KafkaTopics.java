@@ -9,7 +9,8 @@ public enum KafkaTopics {
     ORDER_TOPIC("order-topic"),
     PAYMENT_SUCCESS_TOPIC("payment-success-topic"),
     PAYMENT_FAILURE_TOPIC("payment-failure-topic"),
-    INVENTORY_DEDUCTED_TOPIC("inventory-deducted-topic");
+    INVENTORY_DEDUCTED_TOPIC("inventory-deducted-topic"),
+    INVENTORY_FAILURE_TOPIC("inventory-failure-topic");
 
     private final String topicName;
 }

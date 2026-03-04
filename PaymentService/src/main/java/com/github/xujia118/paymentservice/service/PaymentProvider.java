@@ -4,4 +4,6 @@ import com.github.xujia118.paymentservice.model.Payment;
 
 public interface PaymentProvider {
     boolean executeTransaction(Payment payment, Long PaymentMethodId);
+
+    void refund(String transactionId);
 }

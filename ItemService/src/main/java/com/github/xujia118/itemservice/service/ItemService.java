@@ -32,7 +32,6 @@ public class ItemService {
     public Item getItemById(String id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(id));
-
     }
 
     public void deductStock(PaymentDto paymentDto) {
