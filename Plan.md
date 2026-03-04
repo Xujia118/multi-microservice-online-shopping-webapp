@@ -57,6 +57,8 @@ Payment flow:
 5. After payment, if the user wants to cancel order and ask for a refund, he can do that as long as order status is not shipped.
 6. we should return the money, and restore the stock
 
+auth service + api gateway
+
 for auth, don't forget that user can't get other account by id
 
 Think about how services can communicate with each other
