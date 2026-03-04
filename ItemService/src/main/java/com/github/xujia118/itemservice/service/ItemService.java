@@ -26,7 +26,6 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final MongoTemplate mongoTemplate;
-    private final InventoryEventPublisher inventoryEventPublisher;
 
     public List<Item> findAllItems() {
         return itemRepository.findAll();
@@ -47,14 +46,6 @@ public class ItemService {
 
         } catch (InsufficientStockException e) {
             log.error("Insufficient stock. Triggering compensation for Order: {}", paymentDto.getOrderId());
-
-            // Call the dedicated publisher
-            inventoryEventPublisher.publishFailure(
-                    paymentDto.getOrderId(),
-                    paymentDto.getAccountId(),
-                    paymentDto.getTransactionId(),
-                    paymentDto.getTotalAmount()
-            );
 
             // Re-throw to trigger @Transactional rollback
             throw e;

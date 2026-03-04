@@ -4,6 +4,7 @@ import com.github.xujia118.paymentservice.model.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Random;
 import java.util.UUID;
 
@@ -39,15 +40,14 @@ public class MockPaymentProvider implements PaymentProvider {
     }
 
     @Override
-    public void refund(String transactionId) {
-        log.info("Mocking refund for Transaction: {}", transactionId);
+    public void refund(String transactionId, BigDecimal totalAmount) {
+        log.info("Mocking refund for Transaction: {} | Amount: ${}", transactionId, totalAmount);
 
-        // Simulate 5% failure rate
         if (random.nextDouble() < 0.05) {
-            log.error("Bank API connection timed out!");
-            throw new RuntimeException("Refund failed due to external connectivity issues");
+            log.error("Bank API timeout for refund of ${}", totalAmount);
+            throw new RuntimeException("Refund failed");
         }
 
-        log.info("Mock Provider: Refund successful for ID: {}", transactionId);
+        log.info("Mock Provider: Refund of ${} successful!", totalAmount);
     }
 }

@@ -16,13 +16,20 @@ public class InventoryFailureListener {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
 
-    @KafkaListener(topics = "${kafka.topics.inventory-failure}", groupId = "${kafka.groups.payment}")
+    @KafkaListener(
+            topics = "${kafka.topics.inventory-failure}",
+            groupId = "${kafka.groups.payment-service-refunds}",
+            properties = {
+                    "spring.json.value.default.type=com.github.xujia118.common.dto.InventoryFailedEvent",
+                    "spring.json.use.type.headers=false"
+            }
+    )
     public void handleInventoryFailure(InventoryFailedEvent event) {
         log.info("Compensating payment for Order: {}", event.getOrderId());
 
         try {
             // Pass both IDs to the service
-            paymentService.processRefund(event.getOrderId(), event.getTransactionId());
+            paymentService.processRefund(event);
             log.info("Refund cycle complete for Order: {}", event.getOrderId());
         } catch (Exception e) {
             log.error("Refund failed for order {}: {}", event.getOrderId(), e.getMessage());

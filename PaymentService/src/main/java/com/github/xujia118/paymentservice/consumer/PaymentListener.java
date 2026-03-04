@@ -14,7 +14,7 @@ public class PaymentListener {
 
     private final PaymentService paymentService;
 
-    @KafkaListener(topics = "${kafka.topics.order}", groupId = "${kafka.groups.payment}")
+    @KafkaListener(topics = "${kafka.topics.order}", groupId = "${kafka.groups.payment-service-new-orders}")
     public void onOrderReceived(OrderDto orderDto) {
         log.info("Payment Service received Order ID: {}", orderDto.getOrderId());
         log.info("Amount to charge: ${}", orderDto.getTotalAmount());

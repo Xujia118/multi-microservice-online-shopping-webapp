@@ -23,6 +23,6 @@ public class InventoryEventPublisher {
 
         // We use orderId as the message key to ensure all events for the same order
         // land in the same Kafka partition (maintaining order if necessary)
-        kafkaTemplate.send(KafkaTopics.PAYMENT_FAILURE_TOPIC.getTopicName(), orderId, event);
+        kafkaTemplate.send(KafkaTopics.INVENTORY_FAILURE_TOPIC.getTopicName(), orderId, event);
     }
 }

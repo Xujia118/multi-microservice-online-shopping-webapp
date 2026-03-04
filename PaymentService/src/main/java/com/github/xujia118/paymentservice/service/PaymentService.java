@@ -1,5 +1,6 @@
 package com.github.xujia118.paymentservice.service;
 
+import com.github.xujia118.common.dto.InventoryFailedEvent;
 import com.github.xujia118.common.dto.OrderDto;
 import com.github.xujia118.common.model.OrderStatus;
 import com.github.xujia118.paymentservice.model.Payment;
@@ -73,20 +74,20 @@ public class PaymentService {
     }
 
     @Transactional
-    public void processRefund(String orderId, String transactionId) {
+    public void processRefund(InventoryFailedEvent event) {
         // 1. Fetch the payment record
-        Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found for order: " + orderId));
+        Payment payment = paymentRepository.findByOrderId(event.getOrderId())
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found for order: " + event.getOrderId()));
 
         // 2. The Idempotency Guard
         if (OrderStatus.REFUNDED.equals(payment.getOrderStatus())) {
-            log.info("Payment for order {} already refunded. Skipping.", orderId);
+            log.info("Payment for order {} already refunded. Skipping.", event.getOrderId());
             return;
         }
 
         // 3. Trigger external refund
         // Note: Call this before the DB update. If the API fails, the DB doesn't change.
-        paymentProvider.refund(transactionId);
+        paymentProvider.refund(event.getTransactionId(), payment.getTotalAmount());
 
         // 4. Update the record
         payment.setOrderStatus(OrderStatus.REFUNDED);
