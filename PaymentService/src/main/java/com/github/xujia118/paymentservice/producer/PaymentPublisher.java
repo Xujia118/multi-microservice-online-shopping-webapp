@@ -17,28 +17,31 @@ public class PaymentPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publishPaymentSuccess(OrderDto orderDto, Payment payment) {
-        PaymentDto paymentDto = new PaymentDto(
-                payment.getOrderId(),
-                payment.getAccountId(),
-                payment.getTransactionId(),
-                payment.getOrderStatus().toString(),
-                orderDto.getItems()
-        );
-
-        log.info("Publishing payment success for order: {}", paymentDto.getOrderId());
-        kafkaTemplate.send(KafkaTopics.PAYMENT_SUCCESS_TOPIC.getTopicName(), paymentDto.getOrderId(), paymentDto);
+        publish(orderDto, payment, KafkaTopics.PAYMENT_SUCCESS_TOPIC);
     }
 
     public void publishPaymentFailure(OrderDto orderDto, Payment payment) {
-        PaymentDto paymentDto = new PaymentDto(
+        publish(orderDto, payment, KafkaTopics.PAYMENT_FAILURE_TOPIC);
+    }
+
+    // Generic internal method to handle the heavy lifting
+    private void publish(OrderDto orderDto, Payment payment, KafkaTopics topic) {
+        PaymentDto paymentDto = mapToDto(orderDto, payment);
+
+        log.info("Publishing payment status [{}] to topic [{}] for order: {}",
+                paymentDto.getStatus(), topic.getTopicName(), paymentDto.getOrderId());
+
+        kafkaTemplate.send(topic.getTopicName(), paymentDto.getOrderId(), paymentDto);
+    }
+
+    // Dedicated mapper method
+    private PaymentDto mapToDto(OrderDto orderDto, Payment payment) {
+        return new PaymentDto(
                 payment.getOrderId(),
                 payment.getAccountId(),
                 payment.getTransactionId(),
                 payment.getOrderStatus().toString(),
                 orderDto.getItems()
         );
-
-        log.info("Publishing payment failed for order: {}", paymentDto.getOrderId());
-        kafkaTemplate.send(KafkaTopics.PAYMENT_FAILURE_TOPIC.getTopicName(), paymentDto.getOrderId(), paymentDto);
     }
 }

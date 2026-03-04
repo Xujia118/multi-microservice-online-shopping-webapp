@@ -1,6 +1,7 @@
 package com.github.xujia118.itemservice.consumer;
 
 import com.github.xujia118.common.dto.PaymentDto;
+import com.github.xujia118.common.model.OrderStatus;
 import com.github.xujia118.itemservice.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +15,13 @@ public class PaymentSuccessListener {
 
     private final ItemService itemService;
 
-    @KafkaListener(topics = "payment-success-topic", groupId = "inventory-group")
-    public void onPaymentSuccess(PaymentDto event) {
-        log.info("Received payment success for Order ID: {}", event.getOrderId());
+    @KafkaListener(topics = "${kafka.topics.payment-success}", groupId = "${kafka.groups.inventory}")
+    public void onPaymentSuccess(PaymentDto paymentDto) {
+        log.info("Received payment success for Order ID: {}", paymentDto.getOrderId());
 
         // Ensure we only process if the status is PAID
-        if ("PAID".equals(event.getStatus())) {
-            itemService.deductStock(event.getOrderId());
+        if (OrderStatus.PAID.toString().equals(paymentDto.getStatus())) {
+            itemService.deductStock(paymentDto);
         }
     }
 }
