@@ -98,5 +98,38 @@ services:
     command:
       - |
         echo "Initiating MongoDB Replica Set..."
-        mongosh --host shopping-mongo:27017 --eval "rs.initiate({_id:'rs0', members:[{_id:0,host:'localhost:27017'}]})"
+        mongosh --host shopping-mongo:27017 --eval "rs.initiate({_id:'rs0', members:[{_id:0,host:'shopping-mongo:27017'}]})"
         echo "MongoDB Replica Set initiated."
+
+  # --- SPRING MICROSERVICES ---
+  gateway-service:
+    build: ./GatewayService
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - item-service
+      - auth-service
+
+  item-service:
+    build: ./ItemService
+    container_name: item-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://shopping-mongo:27017/items_db?replicaSet=rs0
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  auth-service:
+    build: ./AuthService
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://shopping-postgres:5432/shopping_db
+    depends_on:
+      - postgres-db
