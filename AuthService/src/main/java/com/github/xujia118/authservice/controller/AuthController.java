@@ -2,6 +2,8 @@ package com.github.xujia118.authservice.controller;
 
 import com.github.xujia118.authservice.service.AuthService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,14 +14,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody AuthRequest request) {
-        String token = authService.register(request.email(), request.password());
-        return new AuthResponse(token, request.email());
+    public ResponseEntity<Void> register(@RequestBody AuthRequest request) {
+        authService.register(request.email(), request.password());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
-        String token = authService.login(request.email(), request.password());
-        return new AuthResponse(token, request.email());
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        AuthResponse response = authService.login(request.email(), request.password());
+        return ResponseEntity.ok(new AuthResponse(
+                response.token(),
+                response.userId(),
+                response.email()
+        ));
     }
 }

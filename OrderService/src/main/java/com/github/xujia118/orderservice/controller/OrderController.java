@@ -18,8 +18,8 @@ public class OrderController {
     private final OrderService orderService;
 
     // Only need accountId to fetch all orders of this account
-    @GetMapping("/{accountId}")
-    public List<Order> getOrdersByAccount(@PathVariable Long accountId) {
+    @GetMapping()
+    public List<Order> getOrdersByAccount(@RequestHeader("X-User-Id") Long accountId) {
         return orderService.getOrdersByAccount(accountId);
     }
 

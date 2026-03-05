@@ -7,60 +7,41 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor
 public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
-    private final JwtUtil jwtUtil;
     private final Logger logger = LoggerFactory.getLogger(CustomGlobalFilter.class);
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // PRE-FILTER LOGIC: Happens before the request is routed
-        String path = exchange.getRequest().getPath().toString();
-        logger.info("Global Filter: Request Path is {}", path);
+        return exchange.getPrincipal()
+                .cast(org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken.class)
+                .flatMap(auth -> {
+                    // 'sub' is the email
+                    String email = auth.getName();
+                    // Extract our custom 'userId' claim from the token
+                    Object userId = auth.getTokenAttributes().get("userId");
 
-        // 1. Skip validation for Auth Service (Login/Register)
-        if (path.contains("/api/v1/auth") || path.contains("/api/v1/items")) {
-            return chain.filter(exchange);
-        }
+                    ServerWebExchange mutatedExchange = exchange.mutate()
+                            .request(r -> r
+                                    .header("X-User-Email", email)
+                                    .header("X-User-Id", String.valueOf(userId))
+                            ).build();
 
-        // 2. Check for Authorization Header
-        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
-
-        String token = authHeader.substring(7);
-        try {
-            // 3. Validate Token and extract the user info
-            String username = jwtUtil.extractUsername(token);
-            jwtUtil.validateToken(token);
-
-            // 4. "Mutate" the request to add a custom header for downstream services
-            ServerWebExchange mutatedExchange = exchange.mutate()
-                    .request(r -> r.header("X-User-Email", username))
-                    .build();
-
-            return chain.filter(mutatedExchange);
-
-        } catch (Exception e) {
-            logger.error("JWT Validation failed: {}", e.getMessage());
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
+                    return chain.filter(mutatedExchange);
+                })
+                .switchIfEmpty(chain.filter(exchange)); // Fallback for permitAll routes
     }
 
     @Override
     public int getOrder() {
-        return -1; // Highest priority
+        return 0;
     }
 }

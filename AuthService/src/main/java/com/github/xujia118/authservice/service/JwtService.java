@@ -16,15 +16,16 @@ public class JwtService {
     // In production, keep this in a secure vault or environment variable
     private static final String SECRET = "635166546A576E5A7134743777217A25432A462D4A614E645267556B58703273";
 
-    public String generateToken(String username) {
+    public String generateToken(String email, Long id) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        claims.put("userId", id);
+        return createToken(claims, email);
     }
 
-    private String createToken(Map<String, Object> claims, String username) {
+    private String createToken(Map<String, Object> claims, String email) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)

@@ -18,7 +18,6 @@ public class AccountMapper {
         Account account = new Account();
         account.setId(dto.getId());
         account.setEmail(dto.getEmail());
-        account.setPassword(dto.getPassword());
         account.setFirstName(dto.getFirstName());
         account.setLastName(dto.getLastName());
 
