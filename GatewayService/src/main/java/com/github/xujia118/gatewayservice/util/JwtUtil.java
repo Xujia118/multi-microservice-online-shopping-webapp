@@ -11,7 +11,7 @@ import java.security.Key;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET = "635166546A576E5A7134743777217A25432A462D4A614E645267556B58703273";
+    public static final String SECRET = "635166546A576E5A7134743777217A25432A462D4A614E645267556B58703273";
 
     public void validateToken(String token) {
         Jwts.parserBuilder()

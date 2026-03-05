@@ -31,11 +31,12 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found!"));
     }
 
-    public Order createOrder(Order order) {
-        // 1. Generate the Clustering Key (orderId) if it's not already provided
-        if (order.getKey().getOrderId() == null) {
-            order.getKey().setOrderId(UUID.randomUUID());
-        }
+    public Order createOrder(Long accountId, Order order) {
+        // 1. Make a composite key and set it
+        OrderKey key = new OrderKey();
+        key.setAccountId(accountId);
+        key.setOrderId(UUID.randomUUID());
+        order.setKey(key);
 
         // 2. Set the initial lifecycle status
         order.setStatus(OrderStatus.PENDING);

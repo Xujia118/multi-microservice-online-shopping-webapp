@@ -32,10 +32,10 @@ public class OrderController {
         return orderService.getOrderById(key);
     }
 
-    @PostMapping("/{accountId}")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Order createOrder(@RequestBody Order order) {
-        return orderService.createOrder(order);
+    public Order createOrder(@RequestHeader("X-User-Id") Long accountId, @RequestBody Order order) {
+        return orderService.createOrder(accountId, order);
     }
 
     @PutMapping("/{accountId}/{orderId}")

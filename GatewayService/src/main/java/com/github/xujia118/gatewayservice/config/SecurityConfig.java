@@ -6,16 +6,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JwtUtil jwtUtil;
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -34,21 +37,11 @@ public class SecurityConfig {
 
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
-        // This connects Spring Security's internal logic to your JwtUtil logic
-        return token -> {
-            try {
-                // Use your existing validate/extract logic
-                jwtUtil.validateToken(token);
-                String username = jwtUtil.extractUsername(token);
+        // The exact same secret from your AuthService
+        byte[] keyBytes = Base64.getDecoder().decode(JwtUtil.SECRET);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
 
-                // Return a standard JWT object that Spring understands
-                return Mono.just(org.springframework.security.oauth2.jwt.Jwt.withTokenValue(token)
-                        .header("alg", "HS256")
-                        .subject(username)
-                        .build());
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        };
+        // This automatically validates the signature and extracts ALL claims (including userId, iat, exp)
+        return NimbusReactiveJwtDecoder.withSecretKey(secretKey).build();
     }
 }
