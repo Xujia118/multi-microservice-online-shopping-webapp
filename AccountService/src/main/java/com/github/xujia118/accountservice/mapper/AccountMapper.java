@@ -1,8 +1,8 @@
 package com.github.xujia118.accountservice.mapper;
 
-import com.github.xujia118.accountservice.dto.AccountDto;
-import com.github.xujia118.accountservice.dto.AddressDto;
-import com.github.xujia118.accountservice.dto.PaymentMethodDto;
+import com.github.xujia118.common.dto.AccountDto;
+import com.github.xujia118.common.dto.AddressDto;
+import com.github.xujia118.common.dto.PaymentMethodDto;
 import com.github.xujia118.accountservice.model.Account;
 import com.github.xujia118.accountservice.model.Address;
 import com.github.xujia118.accountservice.model.PaymentMethod;

@@ -1,8 +1,8 @@
 package com.github.xujia118.accountservice.service;
 
-import com.github.xujia118.accountservice.dto.AccountDto;
-import com.github.xujia118.accountservice.dto.AddressDto;
-import com.github.xujia118.accountservice.dto.PaymentMethodDto;
+import com.github.xujia118.common.dto.AccountDto;
+import com.github.xujia118.common.dto.AddressDto;
+import com.github.xujia118.common.dto.PaymentMethodDto;
 import com.github.xujia118.accountservice.mapper.AccountMapper;
 import com.github.xujia118.accountservice.model.Account;
 import com.github.xujia118.accountservice.model.Address;
@@ -30,6 +30,17 @@ public class AccountService {
     @Transactional
     public Account createAccount(AccountDto accountDto) {
         Account account = accountMapper.toEntity(accountDto);
+
+        account.setId(null);
+
+        if (account.getAddresses() != null) {
+            account.getAddresses().forEach(address -> address.setId(null));
+        }
+
+        if (account.getPaymentMethods() != null) {
+            account.getPaymentMethods().forEach(payment -> payment.setId(null));
+        }
+
         return accountRepository.save(account);
     }
 
@@ -49,8 +60,6 @@ public class AccountService {
         if (accountDto.getEmail() != null) {
             existingAccount.setEmail(accountDto.getEmail());
         }
-
-        // We don't update password here
 
         updateAddresses(existingAccount, accountDto);
         updatePaymentMethods(existingAccount, accountDto);

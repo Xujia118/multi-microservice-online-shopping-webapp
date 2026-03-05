@@ -1,6 +1,6 @@
 package com.github.xujia118.accountservice.controller;
 
-import com.github.xujia118.accountservice.dto.AccountDto;
+import com.github.xujia118.common.dto.AccountDto;
 import com.github.xujia118.accountservice.mapper.AccountMapper;
 import com.github.xujia118.accountservice.model.Account;
 import com.github.xujia118.accountservice.service.AccountService;

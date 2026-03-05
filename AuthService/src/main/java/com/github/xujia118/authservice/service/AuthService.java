@@ -1,8 +1,10 @@
 package com.github.xujia118.authservice.service;
 
+import com.github.xujia118.authservice.client.AccountClient;
 import com.github.xujia118.authservice.controller.AuthResponse;
 import com.github.xujia118.authservice.model.Auth;
 import com.github.xujia118.authservice.repository.AuthRepository;
+import com.github.xujia118.common.dto.AccountDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,7 @@ public class AuthService {
     private final AuthRepository authRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AccountClient accountClient;
 
     public void register(String email, String password) {
         // 1. Check if user exists
@@ -26,9 +29,25 @@ public class AuthService {
         // 2. Hash the password and save
         Auth newUser = new Auth();
         newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(password)); // BCRYPT
-        authRepository.save(newUser);
-        log.info("User registered successfully: {}", email);
+        newUser.setPassword(passwordEncoder.encode(password));
+        Auth savedAuth = authRepository.save(newUser);
+        log.info("User saved in Auth DB with ID: {}", savedAuth.getId());
+
+        // 3. Create Account Placeholder in AccountService
+        try {
+            AccountDto placeholder = AccountDto.builder()
+                    .id(savedAuth.getId())
+                    .email(savedAuth.getEmail())
+                    .build();
+
+            accountClient.createAccount(placeholder);
+            log.info("Account placeholder created successfully for: {}", email);
+        } catch (Exception e) {
+            log.error("Failed to create account placeholder for {}. Rolling back...", email, e);
+            // Throwing an exception here triggers the @Transactional rollback
+            // so you don't end up with an Auth record but no Account record.
+            throw new RuntimeException("Registration failed due to profile creation error.");
+        }
     }
 
     public AuthResponse login(String email, String password) {

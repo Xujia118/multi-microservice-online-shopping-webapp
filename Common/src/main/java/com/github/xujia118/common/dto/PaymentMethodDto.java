@@ -1,4 +1,4 @@
-package com.github.xujia118.accountservice.dto;
+package com.github.xujia118.common.dto;
 
 import com.github.xujia118.common.model.PaymentType;
 import lombok.Data;
