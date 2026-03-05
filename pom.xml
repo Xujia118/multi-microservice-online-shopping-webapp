@@ -8,7 +8,7 @@
         <version>4.0.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.github.Xujia118</groupId>
+    <groupId>com.github.xujia118</groupId>
     <artifactId>OnlineShoppingWebsite</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>OnlineShoppingWebsite</name>
