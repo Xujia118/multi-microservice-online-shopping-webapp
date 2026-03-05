@@ -1,14 +1,21 @@
-spring.application.name=AuthService
-server.port=8085
+spring:
+  application:
+    name: AuthService
 
-# Use 'localhost' if running the app locally, or 'postgres-db' if running inside Docker
-spring.datasource.url=jdbc:postgresql://localhost:5432/shopping_db
-spring.datasource.username=user
-spring.datasource.password=password
-spring.datasource.driver-class-name=org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shopping_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
 
-# 2. JPA / Hibernate Properties
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8085

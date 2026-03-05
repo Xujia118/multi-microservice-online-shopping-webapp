@@ -15,9 +15,9 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable) // Disable CSRF for development
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/v1/items/**").permitAll() // Explicitly permit items
-                        .pathMatchers("/auth/**").permitAll()         // Explicitly permit auth
-                        .anyExchange().permitAll()                   // Permit everything else for now
+                        .pathMatchers("/api/v1/auth/**").permitAll()         // Explicitly permit auth
+                        .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/items/**").permitAll() // Browsing is public
+                        .anyExchange().authenticated()                 // Permit everything else for now
                 )
                 .build();
     }
