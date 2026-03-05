@@ -1,7 +1,6 @@
 package com.github.xujia118.orderservice.controller;
 
 import com.github.xujia118.orderservice.model.Order;
-import com.github.xujia118.orderservice.model.OrderKey;
 import com.github.xujia118.orderservice.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +23,9 @@ public class OrderController {
     }
 
     // Lookup using both parts of the Primary Key
-    @GetMapping("/{accountId}/{orderId}")
-    public Order getOrder(@PathVariable Long accountId, @PathVariable UUID orderId) {
-        OrderKey key = new OrderKey();
-        key.setAccountId(accountId);
-        key.setOrderId(orderId);
-        return orderService.getOrderById(key);
+    @GetMapping("/{orderId}")
+    public Order getOrder(@RequestHeader("X-User-Id") Long accountId, @PathVariable UUID orderId) {
+        return orderService.getOrderById(accountId, orderId);
     }
 
     @PostMapping
@@ -38,23 +34,17 @@ public class OrderController {
         return orderService.createOrder(accountId, order);
     }
 
-    @PutMapping("/{accountId}/{orderId}")
+    @PutMapping("/{orderId}")
     @ResponseStatus(HttpStatus.OK)
-    public Order updateOrder(@PathVariable Long accountId,
+    public Order updateOrder(@RequestHeader("X-User-Id") Long accountId,
                              @PathVariable UUID orderId,
                              @RequestBody Order updatedOrder) {
-        OrderKey key = new OrderKey();
-        key.setAccountId(accountId);
-        key.setOrderId(orderId);
-        return orderService.updateOrder(key, updatedOrder);
+        return orderService.updateOrder(accountId, orderId, updatedOrder);
     }
 
-    @PutMapping("/{accountId}/{orderId}/cancel")
+    @PutMapping("/{orderId}/cancel")
     @ResponseStatus(HttpStatus.OK) // return 204 for successful deletion
-    public Order cancelOrder(@PathVariable Long accountId, @PathVariable UUID orderId) {
-        OrderKey key = new OrderKey();
-        key.setAccountId(accountId);
-        key.setOrderId(orderId);
-        return orderService.cancelOrder(key);
+    public Order cancelOrder(@RequestHeader("X-User-Id") Long accountId, @PathVariable UUID orderId) {
+        return orderService.cancelOrder(accountId, orderId);
     }
 }

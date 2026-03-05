@@ -7,8 +7,9 @@ import com.github.xujia118.orderservice.producer.OrderPublisher;
 import com.github.xujia118.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,6 @@ import java.util.UUID;
 @Slf4j
 public class OrderService {
 
-    private final KafkaTemplate<String, Order> kafkaTemplate;
     private final OrderRepository orderRepository;
     private final OrderPublisher orderPublisher;
 
@@ -26,16 +26,21 @@ public class OrderService {
         return orderRepository.findByKeyAccountId(accountId);
     }
 
-    public Order getOrderById(OrderKey orderKey) {
-        return orderRepository.findById(orderKey)
-                .orElseThrow(() -> new RuntimeException("Order not found!"));
+    public Order getOrderById(Long accountId, UUID orderId) {
+        // 1. Get the composite key
+        OrderKey key = getOrderKey(accountId, orderId);
+
+        // 2. Fetch from repository and handle the "Not Found" case securely
+        return orderRepository.findById(key)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
     }
 
     public Order createOrder(Long accountId, Order order) {
-        // 1. Make a composite key and set it
-        OrderKey key = new OrderKey();
-        key.setAccountId(accountId);
-        key.setOrderId(UUID.randomUUID());
+        // 1. Make a new composite key and set it
+        OrderKey key = getOrderKey(accountId, UUID.randomUUID());
         order.setKey(key);
 
         // 2. Set the initial lifecycle status
@@ -54,16 +59,17 @@ public class OrderService {
 
         // 5. Publish to Kafka
         orderPublisher.publishOrder(savedOrder);
-
-        // consider race conditions
         return savedOrder;
     }
 
-    public Order updateOrder(OrderKey orderKey, Order updatedOrder) {
-        Order order = getOrderById(orderKey);
+    public Order updateOrder(Long accountId, UUID orderId, Order updatedOrder) {
+        Order order = getOrderById(accountId, orderId);
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("Order can only be updated while in PENDING status.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Order can only be updated while in PENDING status."
+            );
         }
 
         order.setItems(updatedOrder.getItems());
@@ -77,22 +83,28 @@ public class OrderService {
         return savedOrder;
     }
 
-    public Order cancelOrder(OrderKey orderKey) {
-        if (!orderRepository.existsById(orderKey)) {
-            throw new RuntimeException("Order not found!");
-        }
+    public Order cancelOrder(Long accountId, UUID orderId) {
+        Order order = getOrderById(accountId, orderId);
 
-        Order order = getOrderById(orderKey);
-
-        // Logical check: Don't cancel if already shipped or delivered
         if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Cannot cancel order once it's shipped.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot cancel order once it is shipped or delivered."
+            );
         }
 
+        // 3. Process cancellation
         order.setStatus(OrderStatus.CANCELLED);
         Order savedOrder = orderRepository.save(order);
 
         orderPublisher.publishOrder(savedOrder);
-        return order;
+        return savedOrder;
+    }
+
+    private OrderKey getOrderKey(Long accountId, UUID orderId) {
+        OrderKey key = new OrderKey();
+        key.setAccountId(accountId);
+        key.setOrderId(orderId);
+        return key;
     }
 }
