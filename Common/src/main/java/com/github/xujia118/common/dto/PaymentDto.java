@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PaymentDto {
     private String orderId;     // Extracted from OrderKey
-    private String accountId;   // Extracted from OrderKey
+    private Long accountId;   // Extracted from OrderKey
     private String transactionId;
     private BigDecimal totalAmount;
     private OrderStatus orderStatus;

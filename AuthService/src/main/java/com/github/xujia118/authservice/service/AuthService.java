@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AccountClient accountClient;
 
+    @Transactional
     public void register(String email, String password) {
         // 1. Check if user exists
         if (authRepository.findByEmail(email).isPresent()) {
@@ -60,6 +62,7 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        // Should set jwt in the header, to check
         String token = jwtService.generateToken(user.getEmail(), user.getId());
         return new AuthResponse(token, user.getId(), user.getEmail());
     }

@@ -24,7 +24,7 @@ public class Payment {
     private String orderId;
 
     @Column(nullable = false)
-    private String accountId;
+    private Long accountId;
 
     private BigDecimal totalAmount;
 

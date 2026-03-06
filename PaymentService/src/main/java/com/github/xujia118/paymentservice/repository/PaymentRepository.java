@@ -13,6 +13,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     // This matches the "orderKey" field name + the "orderId" field inside OrderKey
     Optional<Payment> findByOrderId(String orderId);
 
-    // 3. Find by accountId inside the orderKey
-    List<Payment> findByAccountId(String accountId);
+    // 2. Find by accountId inside the orderKey
+    List<Payment> findByAccountId(Long accountId);
 }
