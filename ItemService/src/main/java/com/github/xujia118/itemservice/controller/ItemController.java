@@ -23,8 +23,8 @@ public class ItemController {
         return itemService.getItemById(id);
     }
 
-    @PutMapping("/{id}/inventory")
-    public void deductInventory(@PathVariable String id, @RequestParam int quantity) {
-        itemService.deductStock(id, quantity);
-    }
+//    @PutMapping("/{id}/inventory")
+//    public void deductInventory(@PathVariable String id, @RequestParam int quantity) {
+//        itemService.deductStock(id, quantity);
+//    }
 }

@@ -10,21 +10,50 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: shopping_db
 
-  # NoSQL for Item Service metadata
+  payment-db:
+    image: postgres:latest
+    container_name: payment-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: payment_db
+
+  # NoSQL for Item Service (Now with Replica Set command)
   mongodb:
     image: mongo:latest
     container_name: shopping-mongo
+    # Required for @Transactional to work
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Column-family for Order Service history
+  # Cassandra for Order Service
   cassandra:
     image: cassandra:latest
     container_name: shopping-cassandra
     ports:
       - "9042:9042"
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
-  # Kafka in KRaft Mode (ZooKeeperless)
+  # Redis for Session Management
+  redis:
+    image: redis:latest
+    container_name: shopping-redis
+    ports:
+      - "6379:6379"
+
+  # Kafka in KRaft Mode
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: shopping-kafka
@@ -40,5 +69,67 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      # Static UUID for KRaft cluster identification
       CLUSTER_ID: 'MkU3ODA3OTYxOTgzNC00zh'
+
+  # --- AUTOMATION SCRIPT ---
+  # This container starts, runs the init commands, and then exits.
+  # This container now uses the Cassandra image so cqlsh is ready immediately
+  init-cassandra:
+    image: cassandra:latest
+    container_name: init-cassandra
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    entrypoint: [ "/bin/bash", "-c" ]
+    command:
+      - |
+        echo "Creating Cassandra keyspace..."
+        cqlsh shopping-cassandra 9042 -e "CREATE KEYSPACE IF NOT EXISTS order_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};"
+        echo "Cassandra keyspace created."
+
+  # This container handles the MongoDB Replica Set
+  init-mongo:
+    image: mongo:latest
+    container_name: init-mongo
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: [ "/bin/bash", "-c" ]
+    command:
+      - |
+        echo "Initiating MongoDB Replica Set..."
+        mongosh --host shopping-mongo:27017 --eval "rs.initiate({_id:'rs0', members:[{_id:0,host:'shopping-mongo:27017'}]})"
+        echo "MongoDB Replica Set initiated."
+
+  # --- SPRING MICROSERVICES ---
+#  gateway-service:
+#    build: ./GatewayService
+#    container_name: gateway-service
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - item-service
+#      - auth-service
+#
+#  item-service:
+#    build: ./ItemService
+#    container_name: item-service
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      - SPRING_DATA_MONGODB_URI=mongodb://shopping-mongo:27017/items_db?replicaSet=rs0
+#    depends_on:
+#      mongodb:
+#        condition: service_healthy
+#
+#  auth-service:
+#    build: ./AuthService
+#    container_name: auth-service
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://shopping-postgres:5432/shopping_db
+#    depends_on:
+#      - postgres-db
