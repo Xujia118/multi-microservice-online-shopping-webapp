@@ -5,7 +5,6 @@ import com.github.xujia118.common.dto.PaymentDto;
 import com.github.xujia118.itemservice.entity.Item;
 import com.github.xujia118.itemservice.exception.InsufficientStockException;
 import com.github.xujia118.itemservice.exception.ItemNotFoundException;
-import com.github.xujia118.itemservice.producer.InventoryEventPublisher;
 import com.github.xujia118.itemservice.repository.ItemRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;

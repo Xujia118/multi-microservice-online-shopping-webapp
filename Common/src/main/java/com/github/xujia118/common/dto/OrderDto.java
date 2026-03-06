@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderDto {
     private String orderId;     // Flattened from OrderKey
-    private String accountId;   // Flattened from OrderKey
+    private Long accountId;   // Flattened from OrderKey
     private List<OrderItemDto> items;
     private BigDecimal totalAmount;
     private OrderStatus status;

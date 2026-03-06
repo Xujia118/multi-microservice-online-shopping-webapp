@@ -16,7 +16,7 @@ public class InventoryEventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void publishFailure(String orderId, String accountId, String transactionId, BigDecimal totalAmount) {
+    public void publishFailure(String orderId, Long accountId, String transactionId, BigDecimal totalAmount) {
         InventoryFailedEvent event = new InventoryFailedEvent(orderId, accountId, transactionId, totalAmount);
 
         log.info("Publishing InventoryFailedEvent for Order: {}", orderId);

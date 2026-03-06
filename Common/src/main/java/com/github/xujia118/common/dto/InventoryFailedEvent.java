@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class InventoryFailedEvent {
     private String orderId;
-    private String accountId;
+    private Long accountId;
     private String transactionId;
     private BigDecimal totalAmount;
 }

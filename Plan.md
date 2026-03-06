@@ -62,3 +62,17 @@ auth service + api gateway
 for auth, don't forget that user can't get other account by id
 
 Think about how services can communicate with each other
+
+Some lessons learned:
+
+1. develop entity -> repository -> service -> controller
+2. entity id should not be primitive, because primitive can't be null. use objects such as Long
+3. you should not directly send entity to kafka or to frontend; send dto instead
+4. dto need to have no arg constructor, all arg constructor and Data, and Builder(if it contains many fields)
+5. add @RequiredArgsConstructor annotation for constructor injection, and field must final
+6. auth and profile both point to the same user id, but should be two tables. auth only cares about authentication, and is the only place to store password. profile stores user profile and preferences
+7. you might need to manually set dto id to null when creating a new use profile
+8. kafka listens to a topic, grabs the message and hands over to service; service does its job and hands back another message to kafka. Node kafka logic should be in service code. All we need is a function
+9. you can check jwt at jwt.io
+10. spring security sits at the very front, it handles authentication; global filter sits behind, it handles routes
+11. for multi-tenant, you can have global filter set headers. for it to have headers, you need to add user id and email to jwt at auth service

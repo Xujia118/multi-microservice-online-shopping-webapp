@@ -48,7 +48,7 @@ class PaymentServiceTest {
     void setUp() {
         testOrderDto = new OrderDto();
         testOrderDto.setOrderId(UUID.randomUUID().toString());
-        testOrderDto.setAccountId("1");
+        testOrderDto.setAccountId(1L);
         testOrderDto.setTotalAmount(new BigDecimal("100.00"));
         testOrderDto.setPaymentType(PaymentType.CREDIT_CARD);
         testOrderDto.setPaymentMethodId(1L);

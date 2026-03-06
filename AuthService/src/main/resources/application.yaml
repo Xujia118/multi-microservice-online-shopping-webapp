@@ -3,9 +3,9 @@ spring:
     name: AuthService
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shopping_db
-    username: user
-    password: password
+    url: jdbc:postgresql://${AUTH_DB_HOST:localhost}:5432/shopping_db
+    username: ${AUTH_DB_USER:user}
+    password: ${AUTH_DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,7 +15,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        physical_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Kafka Configuration (for potential future use)
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
 
 server:
   port: 8085

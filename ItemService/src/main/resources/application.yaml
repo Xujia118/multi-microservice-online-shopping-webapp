@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: ItemService
+
+  # MongoDB Configuration
+  mongodb:
+    uri: mongodb://${MONGO_HOST:localhost}:27017/item_db?replicaSet=rs0
+
+  # Kafka Connection & Consumer/Producer Config
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
+    consumer:
+      group-id: inventory-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            use.type.headers: false
+            value.default.type: com.github.xujia118.common.dto.PaymentDto
+            trusted.packages: "com.github.xujia118.*"
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            add.type.headers: true
+
+# Custom Kafka Topic Properties
+kafka:
+  topics:
+    payment-success: payment-success-topic
+    payment-failure: payment-failure-topic
+  groups:
+    inventory: inventory-group
+
+server:
+  port: 8082

@@ -21,7 +21,7 @@ public class OrderPublisher {
     public void publishOrder(Order order) {
         OrderDto dto = OrderDto.builder()
                 .orderId(order.getKey().getOrderId().toString())
-                .accountId(order.getKey().getAccountId().toString())
+                .accountId(order.getKey().getAccountId())
                 .items(order.getItems().stream()
                         .map(item -> new OrderItemDto(
                                 item.getItemId(),

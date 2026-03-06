@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: PaymentService
+
+  # PostgreSQL Connection (Connecting to the 'payment-postgres' container)
+  datasource:
+    url: jdbc:postgresql://${PAYMENT_DB_HOST:localhost}:5432/payment_db
+    username: ${PAYMENT_DB_USER:user}
+    password: ${PAYMENT_DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate Properties
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+        physical_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    auditing:
+      enabled: true
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
+    consumer:
+      group-id: payment-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring:
+          json:
+            use.type.headers: false
+            trusted.packages: "com.github.xujia118.*"
+            value.default.type: com.github.xujia118.common.dto.OrderDto
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            add.type.headers: true
+
+# Custom Kafka topics and groups
+kafka:
+  topics:
+    order: order-topic
+    inventory-failure: inventory-failure-topic
+  groups:
+    payment-service-new-orders: payment-service-new-orders
+    payment-service-refunds: payment-service-refunds
+
+logging:
+  level:
+    org.apache.kafka: INFO
+    org.springframework.kafka: DEBUG
+
+server:
+  port: 8084

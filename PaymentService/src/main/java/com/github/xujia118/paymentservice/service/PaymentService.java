@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,10 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentProvider paymentProvider;
     private final PaymentPublisher paymentPublisher;
+
+    public List<Payment> getPaymentByAccount(Long accountId) {
+        return paymentRepository.findByAccountId(accountId);
+    }
 
     @Transactional
     public void processOrder(OrderDto orderDto) {
