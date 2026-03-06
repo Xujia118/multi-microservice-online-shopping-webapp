@@ -3,9 +3,9 @@ spring:
     name: AccountService
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/shopping_db
-    username: user
-    password: password
+    url: jdbc:postgresql://${ACCOUNT_DB_HOST:localhost}:5432/shopping_db
+    username: ${ACCOUNT_DB_USER:user}
+    password: ${ACCOUNT_DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,6 +18,10 @@ spring:
         # This helps Hibernate translate camelCase Java fields to snake_case DB columns
         physical_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Kafka Configuration (for potential future use)
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
 
 server:
   port: 8081

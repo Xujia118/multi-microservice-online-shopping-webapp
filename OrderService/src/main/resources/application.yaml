@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: OrderService
+
+  # Cassandra Configuration
+  cassandra:
+    contact-points: ${CASSANDRA_HOST:localhost}
+    port: 9042
+    local-datacenter: datacenter1
+    keyspace-name: order_keyspace
+    # 'create_if_not_exists' is safe, though your init-script handles the keyspace
+    schema-action: create_if_not_exists
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            add.type.headers: true
+
+server:
+  port: 8083

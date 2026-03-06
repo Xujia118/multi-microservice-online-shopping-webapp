@@ -61,7 +61,7 @@ class ItemServiceTest {
 
         testPaymentDto = new PaymentDto();
         testPaymentDto.setOrderId("order-123");
-        testPaymentDto.setAccountId("1");
+        testPaymentDto.setAccountId(1L);
         testPaymentDto.setTotalAmount(new BigDecimal("54.95"));
         testPaymentDto.setItems(Arrays.asList(testOrderItemDto));
     }
@@ -140,7 +140,7 @@ class ItemServiceTest {
 
         PaymentDto paymentWithMultipleItems = new PaymentDto();
         paymentWithMultipleItems.setOrderId("order-456");
-        paymentWithMultipleItems.setAccountId("2");
+        paymentWithMultipleItems.setAccountId(2L);
         paymentWithMultipleItems.setTotalAmount(new BigDecimal("109.92"));
         paymentWithMultipleItems.setItems(Arrays.asList(testOrderItemDto, secondItem));
 
@@ -164,7 +164,7 @@ class ItemServiceTest {
 
         PaymentDto paymentWithMultipleItems = new PaymentDto();
         paymentWithMultipleItems.setOrderId("order-789");
-        paymentWithMultipleItems.setAccountId("1");
+        paymentWithMultipleItems.setAccountId(1L);
         paymentWithMultipleItems.setTotalAmount(new BigDecimal("109.92"));
         paymentWithMultipleItems.setItems(Arrays.asList(testOrderItemDto, secondItem));
 

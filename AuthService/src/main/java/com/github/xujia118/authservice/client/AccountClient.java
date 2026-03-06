@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "AccountService",
-        url = "${app.account-service.url:http://localhost:8081}",
+        url = "${ACCOUNT_SERVICE_URL:http://localhost:8081}",
         path = "/api/v1/accounts"
 )
 public interface AccountClient {
