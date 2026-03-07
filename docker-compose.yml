@@ -65,6 +65,17 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       CLUSTER_ID: 'MkU3ODA3OTYxOTgzNC00zh'
 
+  redis:
+    image: redis:latest
+    container_name: shopping-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # --- INIT SCRIPTS ---
   init-cassandra:
     image: cassandra:latest
@@ -74,6 +85,12 @@ services:
     entrypoint: [ "/bin/bash", "-c" ]
     command:
       - |
+        echo "Waiting for Cassandra to be fully ready..."
+        until cqlsh cassandra 9042 -e "describe cluster"; do
+          echo "Cassandra is unavailable - sleeping"
+          sleep 2
+        done
+        echo "Cassandra is up - creating keyspace"
         cqlsh cassandra 9042 -e "CREATE KEYSPACE IF NOT EXISTS order_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};"
 
   init-mongo:
@@ -84,6 +101,12 @@ services:
     entrypoint: [ "/bin/bash", "-c" ]
     command:
       - |
+        echo "Waiting for MongoDB to be ready..."
+        until mongosh --host mongodb:27017 --eval "db.adminCommand('ping')"; do
+          echo "MongoDB is unavailable - sleeping"
+          sleep 2
+        done
+        echo "MongoDB is up - initializing replica set"
         mongosh --host mongodb:27017 --eval "rs.initiate({_id:'rs0', members:[{_id:0,host:'mongodb:27017'}]})"
 
   # --- SPRING MICROSERVICES ---
@@ -117,6 +140,7 @@ services:
       - ACCOUNT_DB_HOST=postgres-db
       - ACCOUNT_DB_USER=user
       - ACCOUNT_DB_PASSWORD=password
+      - ACCOUNT_DB_PORT=5432
       - KAFKA_HOST=kafka
     depends_on:
       - postgres-db
@@ -131,8 +155,10 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - MONGO_HOST=mongodb
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
       - KAFKA_HOST=kafka
+      - KAFKA_PORT=29092
     depends_on:
       mongodb:
         condition: service_healthy
@@ -152,8 +178,12 @@ services:
       - KAFKA_HOST=kafka
       - KAFKA_PORT=29092
     depends_on:
-      - cassandra
-      - kafka
+      cassandra:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      init-cassandra:
+        condition: service_completed_successfully
 
   payment-service:
     build:
@@ -167,6 +197,7 @@ services:
       - PAYMENT_DB_HOST=payment-db
       - PAYMENT_DB_USER=user
       - PAYMENT_DB_PASSWORD=password
+      - PAYMENT_DB_PORT=5432
       - KAFKA_HOST=kafka
       - KAFKA_PORT=29092
     depends_on:

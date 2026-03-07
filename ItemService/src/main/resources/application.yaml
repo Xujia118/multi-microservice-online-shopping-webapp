@@ -4,11 +4,11 @@ spring:
 
   # MongoDB Configuration
   mongodb:
-    uri: mongodb://${MONGO_HOST:localhost}:27017/item_db?replicaSet=rs0
+    uri: mongodb://${MONGO_DB_HOST:localhost}:${MONGO_DB_PORT:27017}/item_db?replicaSet=rs0
 
   # Kafka Connection & Consumer/Producer Config
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:localhost}:9092
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:
       group-id: inventory-group
       auto-offset-reset: earliest
