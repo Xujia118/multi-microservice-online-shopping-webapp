@@ -4,7 +4,7 @@ spring:
 
   # PostgreSQL Connection (Connecting to the 'payment-postgres' container)
   datasource:
-    url: jdbc:postgresql://${PAYMENT_DB_HOST:localhost}:5432/payment_db
+    url: jdbc:postgresql://${PAYMENT_DB_HOST:localhost}:${PAYMENT_DB_PORT:5433}/payment_db
     username: ${PAYMENT_DB_USER:user}
     password: ${PAYMENT_DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver

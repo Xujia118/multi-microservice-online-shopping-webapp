@@ -4,12 +4,15 @@ spring:
 
   # Cassandra Configuration
   cassandra:
-    contact-points: ${CASSANDRA_HOST:localhost}
+    contact-points: ${CASSANDRA_HOST:127.0.0.1}
     port: 9042
     local-datacenter: datacenter1
     keyspace-name: order_keyspace
     # 'create_if_not_exists' is safe, though your init-script handles the keyspace
     schema-action: create_if_not_exists
+    connection:
+      connect-timeout: 10s
+      init-query-timeout: 10s
 
   # Kafka Configuration
   kafka:

@@ -3,7 +3,7 @@ spring:
     name: AccountService
 
   datasource:
-    url: jdbc:postgresql://${ACCOUNT_DB_HOST:localhost}:5432/shopping_db
+    url: jdbc:postgresql://${ACCOUNT_DB_HOST:localhost}:${ACCOUNT_DB_PORT:5432}/shopping_db
     username: ${ACCOUNT_DB_USER:user}
     password: ${ACCOUNT_DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
